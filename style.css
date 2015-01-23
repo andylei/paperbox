@@ -1,0 +1,14 @@
+.configurator {
+  float: left;
+  width: 300px;
+}
+
+.preview {
+  width: 600px;
+  height: 450px;
+  float: left;
+}
+.app > h3 {
+  clear: left;
+  float: left;
+}
