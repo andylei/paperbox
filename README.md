@@ -1,6 +1,8 @@
 Tuckbox Generator
 -----------------
 
+[Try the demo](https://andylei.github.io/paperbox)
+
 To run locally, install `python` and run
 
 ```
