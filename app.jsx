@@ -18,18 +18,24 @@ Window = React.createClass({
   },
   render: function() {
     return (
-      <div className="app">
-        <Configurator onRebuildPreview={this.generatePreview} onDownload={this.downloadPdf} />
-        <PreviewPane pdfBlob={this.state.pdfBlob}/>
-        <h3>
-          When you print, make sure you print at 100% size.
-        </h3>
-        <a href="https://github.com/andylei/paperbox">
-          <img style={{position: 'absolute', top: 0, right: 0, border: 0}}
+      <div className="app container">
+        <div className="row">
+          <h2>Tuckbox Generator</h2>
+          <hr />
+          <div className="col-xs-4">
+            <Configurator onRebuildPreview={this.generatePreview} onDownload={this.downloadPdf} />
+            </div>
+          <div className="col-xs-7">
+            <PreviewPane pdfBlob={this.state.pdfBlob}/>
+            <h3>When you print, make sure you print at 100% size.</h3>
+          </div>
+          <a href="https://github.com/andylei/paperbox">
+            <img style={{position: 'absolute', top: 0, right: 0, border: 0}}
                src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"
                alt="Fork me on Github"
-          />
-        </a>
+            />
+          </a>
+        </div>
       </div>
     );
   }
@@ -66,9 +72,9 @@ Configurator = React.createClass({
         hasInvalid = true;
       }
     }.bind(this));
-    var hexMatcher = /^[0-9a-f]{6}/i;
-    if (hexMatcher.test(this.state.color)) {
-      measurements.color = this.state.color;
+    var hexMatcher = /^#?([0-9a-f]{6})/i;
+    if ((matches = hexMatcher.exec(this.state.color))) {
+      measurements.color = matches[1];
     }
     if (!hasInvalid) {
       return measurements;
@@ -140,7 +146,7 @@ Configurator = React.createClass({
   },
   render: function() {
     return (
-      <form className="container configurator form-horizontal" onSubmit={this.handleSubmit}>
+      <form className="configurator form-horizontal" onSubmit={this.handleSubmit}>
         <div className="form-group">
           <label className="control-label col-xs-4">Paper Size</label>
           <div className="col-xs-8">
@@ -196,7 +202,7 @@ Configurator = React.createClass({
           <label className="control-label col-xs-4">Box Color</label>
           <div className="col-xs-6">
             <input
-              className="form-control" type="text" ref="depth"
+              className="form-control" type="color" ref="depth"
               onChange={this.colorChange} value={this.state.color}
             />
           </div>
