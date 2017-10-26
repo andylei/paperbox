@@ -228,7 +228,7 @@ function drawDrawer(_drawer, _width, _length, _height, _gap, _fill) {
 function drawBox(_drawer, _width, _length, _height, _fill, _frontImg) {
   var d = _drawer;
   var depths = {
-    side_flap: _height,
+    side_flap: _height * 0.9,
     bot_flap: _height
   }
   var size = {
@@ -276,9 +276,9 @@ function drawBox(_drawer, _width, _length, _height, _fill, _frontImg) {
   }
   var flaps = {
     side: {
-      loc: pt(panels.right.loc.x + depths.side_flap, panels.right.loc.y),
-      size: pt(size.side_flap.y, size.side_flap.x),
-      orient: 'right',
+      loc: pt(panels.bottom.loc.x - (size.main.x + depths.side_flap) / 2, panels.bottom.loc.y),
+      size: pt(size.side_flap.y, depths.side_flap),
+      orient: 'left',
       kind: 'inside'
     },
     bot_bot: {
