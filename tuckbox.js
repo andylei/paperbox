@@ -102,6 +102,34 @@ PDFDrawer.prototype.flap = function(cent, width, height, attenuation, orient, fi
   ], x0, y0, [1, 1], fill, true);
   this.doc.internal.write('Q');
 };
+/** Draws a flap with only one curved corner */
+PDFDrawer.prototype.flapSingle = function(cent, width, height, attenuation, orient, flip, fill) {
+  fill = fill ? fill : 'S';
+  // bottom left
+  var x0 = cent.x - width / 2;
+  var y0 = cent.y + height / 2;
+
+  this.doc.internal.write('q');
+  this.rotate(cent, dir2deg(orient));
+  if(flip) {
+    this.doc.lines([
+        [width, 0],
+        [0, -height],
+        [attenuation - width, 0],
+        [-attenuation, 0, -attenuation, attenuation, -attenuation, attenuation],
+    ], x0, y0, [1, 1], fill, true);
+  }
+  else {
+    this.doc.lines([
+        [width, 0],
+        [0, attenuation - height],
+        [0, -attenuation, -attenuation, -attenuation, -attenuation, -attenuation],
+        [attenuation - width, 0]
+    ], x0, y0, [1, 1], fill, true);
+  }
+  this.doc.internal.write('Q');
+};
+
 PDFDrawer.prototype.trap = function(cent, width, height, attenuation, orient, fill) {
   fill = fill ? fill : 'S';
   // bottom left
@@ -257,9 +285,9 @@ function drawBox(_drawer, _width, _length, _height, _fill, _title, _frontImg) {
     main: pt(_length, _width),
     side_panel: pt(_height, _width),
     side_flap: pt(depths.side_flap, _width),
-    lr_flap: pt(_height, depths.bot_flap),
+    lr_flap: pt(_height, Math.min(depths.bot_flap, 5/8)),
     bt_flap: pt(_length, depths.bot_flap),
-    top_top_flap: pt(_length, Math.min(1, _width / 3))
+    top_top_flap: pt(_length, Math.max(_height / 2, 1/2))
   }
   var height = _height;
   
@@ -321,7 +349,7 @@ function drawBox(_drawer, _width, _length, _height, _fill, _title, _frontImg) {
       loc: add(panels.left.loc, 0, (-panels.bottom.size.y - size.lr_flap.y) / 2),
       size: size.lr_flap,
       orient: 'up',
-      kind: 'inside'
+      kind: 'curvedLeft'
     },
     r_bot: {
       loc: add(panels.right.loc, 0, (panels.bottom.size.y + size.lr_flap.y) / 2),
@@ -333,7 +361,7 @@ function drawBox(_drawer, _width, _length, _height, _fill, _title, _frontImg) {
       loc: add(panels.right.loc, 0, (-panels.bottom.size.y - size.lr_flap.y) / 2),
       size: size.lr_flap,
       orient: 'up',
-      kind: 'inside'
+      kind: 'curvedRight'
     },
     top_bot: {
       loc: add(panels.top.loc, 0, (panels.bottom.size.y + size.bt_flap.y) / 2),
@@ -362,8 +390,14 @@ function drawBox(_drawer, _width, _length, _height, _fill, _title, _frontImg) {
     if (flap.kind === 'outside') {
       d.rect(flap.loc, flap.size, fill);
     } else if (flap.kind === 'curved') {
-      var att = 1/2;
+      var att = Math.min(flap.size.x / 2, flap.size.y)
       d.flap(flap.loc, flap.size.x, flap.size.y, att, flap.orient, fill);
+    } else if (flap.kind === 'curvedRight') {
+      var att = Math.min(flap.size.x, flap.size.y)
+      d.flapSingle(flap.loc, flap.size.x, flap.size.y, att, flap.orient, false, fill);
+    } else if (flap.kind === 'curvedLeft') {
+      var att = Math.min(flap.size.x, flap.size.y)
+      d.flapSingle(flap.loc, flap.size.x, flap.size.y, att, flap.orient, true, fill);
     } else {
       var att = 1/16;
       d.trap(flap.loc, flap.size.x, flap.size.y, att, flap.orient, fill);
