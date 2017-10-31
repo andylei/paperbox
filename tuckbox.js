@@ -136,7 +136,8 @@ function drawSleeve(_drawer, _width, _length, _depth, _fill) {
   var depth = _depth;
   var frontLength = size.x / 2;
   var tabLength = 1/4;
-
+  
+  d.doc.setDrawColor(160);
   var fill = null;
   if (_fill) {
     d.doc.setFillColor.apply(d, hexToRgb(_fill));
@@ -191,7 +192,9 @@ function drawDrawer(_drawer, _width, _length, _height, _gap, _fill) {
   var height = _height;
   var gap_width = _gap;
   var d = _drawer;
-
+  
+  
+  d.doc.setDrawColor(160);
   var fill = null;
   if (_fill) {
     d.doc.setFillColor.apply(d, hexToRgb(_fill));
@@ -240,6 +243,8 @@ function drawBox(_drawer, _width, _length, _height, _fill, _frontImg) {
     top_top_flap: pt(_length, Math.min(1, _width / 3))
   }
   var height = _height;
+  
+  d.doc.setDrawColor(160);
   var fill = null;
   if (_fill) {
     d.doc.setFillColor.apply(d, hexToRgb(_fill));
@@ -395,4 +400,3 @@ function makeBox(
 
   return drawer;
 }
-
