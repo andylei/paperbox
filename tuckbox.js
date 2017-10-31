@@ -422,6 +422,22 @@ function drawBox(_drawer, _width, _length, _height, _fill, _title, _frontImg) {
   d.text(_title, panels.right.loc, 23, 'left');
   d.text(_title, add(panels.top.loc, 0, panels.top.size.y * 0.25), 20, 'up');
   d.text(_title, add(panels.bottom.loc, 0, panels.bottom.size.y * 0.25), 20, 'up');
+
+  // Add cut points
+  d.doc.setDrawColor(0);
+  var cutLength = 3/8;
+  // Top flap
+  var topMid = pt(flaps.top_top.loc.x, flaps.top_top.loc.y - flaps.top_top.size.y / 2);
+  var halfWidth = size.main.x / 2;
+  d.line(add(topMid, -halfWidth, 0), add(topMid, cutLength - halfWidth, 0));
+  d.line(add(topMid, halfWidth, 0), add(topMid, halfWidth - cutLength, 0));
+  // Back
+  topMid = pt(panels.top.loc.x, panels.top.loc.y - panels.top.size.y / 2);
+  halfWidth = size.main.x / 2;
+  d.line(add(topMid, -halfWidth, 0), add(topMid, -halfWidth, cutLength));
+  d.line(add(topMid, halfWidth, 0), add(topMid, halfWidth, cutLength));
+
+
 }
 
 function makeBox(
