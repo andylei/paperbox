@@ -406,12 +406,12 @@ function drawBox(_drawer, _width, _length, _height, _fill, _title, _frontImg) {
   
   _.values(panels).forEach(drawPanel);
   _.values(flaps).forEach(drawFlap);
-
+  
   if (frontImage) {
     var imageX = panels.top.loc.x - panels.top.size.x / 2;
     var imageY = panels.top.loc.y - panels.top.size.y / 2;
     d.doc.addImage(frontImage, 'JPEG', imageX, imageY, panels.top.size.x, panels.top.size.y);
-
+    
     d.rect(panels.top.loc, panels.top.size, 'S');
   }
   
@@ -422,6 +422,13 @@ function drawBox(_drawer, _width, _length, _height, _fill, _title, _frontImg) {
   d.text(_title, panels.right.loc, 23, 'left');
   d.text(_title, add(panels.top.loc, 0, panels.top.size.y * 0.25), 20, 'up');
   d.text(_title, add(panels.bottom.loc, 0, panels.bottom.size.y * 0.25), 20, 'up');
+  
+  (function drawThumbCutout() {
+    var r = 1/3;
+    var x = panels.bottom.loc.x - r, y = panels.bottom.loc.y - size.main.y / 2;
+    var xOffset = 2 * r, yOffset = 4 / 3 * r
+    d.doc.lines([[0, yOffset, xOffset, yOffset, xOffset, 0]], x, y);
+  })();
 
   // Add cut points
   d.doc.setDrawColor(0);
