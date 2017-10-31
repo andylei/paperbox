@@ -120,6 +120,25 @@ PDFDrawer.prototype.trap = function(cent, width, height, attenuation, orient, fi
 PDFDrawer.prototype.p = function(x, y) {
   return add(this.center, x, y);
 };
+/** Adds text
+ * @param s: The text
+ * @param cent: Text will be centered (horizontally & vertically) on this point
+ * @param size: Size (in pts) for the text
+ * @param orient: Orientation for the text: 'up' | 'down' | 'left' | 'right'
+ */
+PDFDrawer.prototype.text = function(s, cent, size, orient) {
+  this.doc.setFontSize(size);
+  // The * 0.6 is needed, for whatever reason, to make it centered
+  var textHeight = this.doc.internal.getLineHeight() / 72 * 0.6;
+  var textWidth = this.doc.getStringUnitWidth(s) * size / 72;
+  var rot = dir2deg(orient)
+  var r = CMrot(rot)
+  var rv = CMcomp([textWidth / 2, textHeight / 2], r)
+
+  var textX = cent.x - rv[0]
+  var textY = cent.y + rv[1]
+  this.doc.text(s, textX, textY, null, rot * 180 / Math.PI)
+}
 PDFDrawer.prototype.buildPdfUriString = function() {
   return this.doc.output('datauristring');
 };
@@ -228,7 +247,7 @@ function drawDrawer(_drawer, _width, _length, _height, _gap, _fill) {
   d.trap(d.p(-x_offset, -y_offset), height, flap_length, 1/16, 'up', fill);
 }
 
-function drawBox(_drawer, _width, _length, _height, _fill, _frontImg) {
+function drawBox(_drawer, _width, _length, _height, _fill, _title, _frontImg) {
   var d = _drawer;
   var depths = {
     side_flap: _height * 0.9,
@@ -350,7 +369,7 @@ function drawBox(_drawer, _width, _length, _height, _fill, _frontImg) {
       d.trap(flap.loc, flap.size.x, flap.size.y, att, flap.orient, fill);
     }
   }
-
+  
   _.values(panels).forEach(drawPanel);
   _.values(flaps).forEach(drawFlap);
 
@@ -361,6 +380,14 @@ function drawBox(_drawer, _width, _length, _height, _fill, _frontImg) {
 
     d.rect(panels.top.loc, panels.top.size, 'S');
   }
+  
+  // Add title text to panels
+  d.doc.setFont('helvetica', 'bold');
+  d.text(_title, flaps.top_top.loc, 20, 'down');
+  d.text(_title, panels.left.loc, 23, 'right');
+  d.text(_title, panels.right.loc, 23, 'left');
+  d.text(_title, add(panels.top.loc, 0, panels.top.size.y * 0.25), 20, 'up');
+  d.text(_title, add(panels.bottom.loc, 0, panels.bottom.size.y * 0.25), 20, 'up');
 }
 
 function makeBox(
@@ -370,6 +397,7 @@ function makeBox(
     boxDepth,
     inside,
     fillColor,
+    title,
     images
 ) {
   images = images || {};
@@ -396,7 +424,7 @@ function makeBox(
     cardHeight += 1 / 16;
     boxDepth += 1 / 16;
   }
-  drawBox(drawer, cardWidth, cardHeight, boxDepth, fillColor, images.boxFront);
+  drawBox(drawer, cardWidth, cardHeight, boxDepth, fillColor, title, images.boxFront);
 
   return drawer;
 }

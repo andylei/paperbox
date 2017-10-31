@@ -8,7 +8,7 @@ Window = React.createClass({
     };
     return makeBox(params.paper,
       params.height, params.width, params.depth,
-      params.inside, params.color, images);
+      params.inside, params.color, params.title, images);
   },
   generatePreview: function(params) {
     this.setState({pdfBlob: this.generatePdf(params).buildPdfUriString()});
@@ -49,7 +49,8 @@ Configurator = React.createClass({
       inside: 'none',
       height: 3.5,
       width: 2.5,
-      depth: 1
+      depth: 1,
+      title: ""
     };
   },
   buildMeasurements: function() {
@@ -57,6 +58,7 @@ Configurator = React.createClass({
     var measurements = {
       inside: this.state.inside,
       paper: this.state.paper,
+      title: this.state.title,
       imageBoxFront: this.state.imageBoxFront
     };
     var hasInvalid = false;
@@ -129,6 +131,9 @@ Configurator = React.createClass({
   },
   unitChange: function(e) {
     this.changeState('unit', e.target.value)
+  },
+  titleChange: function(e) {
+    this.changeState('title', e.target.value)
   },
   imageBoxFrontChange: function(e) {
     if (e.target.files) {
@@ -219,6 +224,15 @@ Configurator = React.createClass({
               <option value="sleeve">Sleeve</option>
               <option value="none">None</option>
             </select>
+          </div>
+        </div>
+        <div className="form-group">
+          <label className="control-label col-xs-4">Title</label>
+          <div className="col-xs-8">
+            <input
+              className="form-control" type="text" ref="title"
+              onChange={this.titleChange} value={this.state.title}
+            />
           </div>
         </div>
         <div className="form-group">
