@@ -102,6 +102,34 @@ PDFDrawer.prototype.flap = function(cent, width, height, attenuation, orient, fi
   ], x0, y0, [1, 1], fill, true);
   this.doc.internal.write('Q');
 };
+/** Draws a flap with only one curved corner */
+PDFDrawer.prototype.flapSingle = function(cent, width, height, attenuation, orient, flip, fill) {
+  fill = fill ? fill : 'S';
+  // bottom left
+  var x0 = cent.x - width / 2;
+  var y0 = cent.y + height / 2;
+
+  this.doc.internal.write('q');
+  this.rotate(cent, dir2deg(orient));
+  if(flip) {
+    this.doc.lines([
+        [width, 0],
+        [0, -height],
+        [attenuation - width, 0],
+        [-attenuation, 0, -attenuation, attenuation, -attenuation, attenuation],
+    ], x0, y0, [1, 1], fill, true);
+  }
+  else {
+    this.doc.lines([
+        [width, 0],
+        [0, attenuation - height],
+        [0, -attenuation, -attenuation, -attenuation, -attenuation, -attenuation],
+        [attenuation - width, 0]
+    ], x0, y0, [1, 1], fill, true);
+  }
+  this.doc.internal.write('Q');
+};
+
 PDFDrawer.prototype.trap = function(cent, width, height, attenuation, orient, fill) {
   fill = fill ? fill : 'S';
   // bottom left
@@ -120,6 +148,25 @@ PDFDrawer.prototype.trap = function(cent, width, height, attenuation, orient, fi
 PDFDrawer.prototype.p = function(x, y) {
   return add(this.center, x, y);
 };
+/** Adds text
+ * @param s: The text
+ * @param cent: Text will be centered (horizontally & vertically) on this point
+ * @param size: Size (in pts) for the text
+ * @param orient: Orientation for the text: 'up' | 'down' | 'left' | 'right'
+ */
+PDFDrawer.prototype.text = function(s, cent, size, orient) {
+  this.doc.setFontSize(size);
+  // The * 0.6 is needed, for whatever reason, to make it centered
+  var textHeight = this.doc.internal.getLineHeight() / 72 * 0.6;
+  var textWidth = this.doc.getStringUnitWidth(s) * size / 72;
+  var rot = dir2deg(orient)
+  var r = CMrot(rot)
+  var rv = CMcomp([textWidth / 2, textHeight / 2], r)
+
+  var textX = cent.x - rv[0]
+  var textY = cent.y + rv[1]
+  this.doc.text(s, textX, textY, null, rot * 180 / Math.PI)
+}
 PDFDrawer.prototype.buildPdfUriString = function() {
   return this.doc.output('datauristring');
 };
@@ -136,7 +183,8 @@ function drawSleeve(_drawer, _width, _length, _depth, _fill) {
   var depth = _depth;
   var frontLength = size.x / 2;
   var tabLength = 1/4;
-
+  
+  d.doc.setDrawColor(160);
   var fill = null;
   if (_fill) {
     d.doc.setFillColor.apply(d, hexToRgb(_fill));
@@ -191,7 +239,9 @@ function drawDrawer(_drawer, _width, _length, _height, _gap, _fill) {
   var height = _height;
   var gap_width = _gap;
   var d = _drawer;
-
+  
+  
+  d.doc.setDrawColor(160);
   var fill = null;
   if (_fill) {
     d.doc.setFillColor.apply(d, hexToRgb(_fill));
@@ -225,21 +275,23 @@ function drawDrawer(_drawer, _width, _length, _height, _gap, _fill) {
   d.trap(d.p(-x_offset, -y_offset), height, flap_length, 1/16, 'up', fill);
 }
 
-function drawBox(_drawer, _width, _length, _height, _fill, _frontImg) {
+function drawBox(_drawer, _width, _length, _height, _fill, _title, _frontImg) {
   var d = _drawer;
   var depths = {
-    side_flap: _height,
+    side_flap: _height * 0.9,
     bot_flap: _height
   }
   var size = {
     main: pt(_length, _width),
     side_panel: pt(_height, _width),
     side_flap: pt(depths.side_flap, _width),
-    lr_flap: pt(_height, depths.bot_flap),
+    lr_flap: pt(_height, Math.min(depths.bot_flap, 5/8)),
     bt_flap: pt(_length, depths.bot_flap),
-    top_top_flap: pt(_length, Math.min(1, _width / 3))
+    top_top_flap: pt(_length, Math.max(_height / 2, 1/2))
   }
   var height = _height;
+  
+  d.doc.setDrawColor(160);
   var fill = null;
   if (_fill) {
     d.doc.setFillColor.apply(d, hexToRgb(_fill));
@@ -276,9 +328,9 @@ function drawBox(_drawer, _width, _length, _height, _fill, _frontImg) {
   }
   var flaps = {
     side: {
-      loc: pt(panels.right.loc.x + depths.side_flap, panels.right.loc.y),
-      size: pt(size.side_flap.y, size.side_flap.x),
-      orient: 'right',
+      loc: pt(panels.bottom.loc.x - (size.main.x + depths.side_flap) / 2, panels.bottom.loc.y),
+      size: pt(size.side_flap.y, depths.side_flap),
+      orient: 'left',
       kind: 'inside'
     },
     bot_bot: {
@@ -297,7 +349,7 @@ function drawBox(_drawer, _width, _length, _height, _fill, _frontImg) {
       loc: add(panels.left.loc, 0, (-panels.bottom.size.y - size.lr_flap.y) / 2),
       size: size.lr_flap,
       orient: 'up',
-      kind: 'inside'
+      kind: 'curvedLeft'
     },
     r_bot: {
       loc: add(panels.right.loc, 0, (panels.bottom.size.y + size.lr_flap.y) / 2),
@@ -309,7 +361,7 @@ function drawBox(_drawer, _width, _length, _height, _fill, _frontImg) {
       loc: add(panels.right.loc, 0, (-panels.bottom.size.y - size.lr_flap.y) / 2),
       size: size.lr_flap,
       orient: 'up',
-      kind: 'inside'
+      kind: 'curvedRight'
     },
     top_bot: {
       loc: add(panels.top.loc, 0, (panels.bottom.size.y + size.bt_flap.y) / 2),
@@ -338,24 +390,61 @@ function drawBox(_drawer, _width, _length, _height, _fill, _frontImg) {
     if (flap.kind === 'outside') {
       d.rect(flap.loc, flap.size, fill);
     } else if (flap.kind === 'curved') {
-      var att = 1/2;
+      var att = Math.min(flap.size.x / 2, flap.size.y)
       d.flap(flap.loc, flap.size.x, flap.size.y, att, flap.orient, fill);
+    } else if (flap.kind === 'curvedRight') {
+      var att = Math.min(flap.size.x, flap.size.y)
+      d.flapSingle(flap.loc, flap.size.x, flap.size.y, att, flap.orient, false, fill);
+    } else if (flap.kind === 'curvedLeft') {
+      var att = Math.min(flap.size.x, flap.size.y)
+      d.flapSingle(flap.loc, flap.size.x, flap.size.y, att, flap.orient, true, fill);
     } else {
       var att = 1/16;
       d.trap(flap.loc, flap.size.x, flap.size.y, att, flap.orient, fill);
     }
   }
-
+  
   _.values(panels).forEach(drawPanel);
   _.values(flaps).forEach(drawFlap);
-
+  
   if (frontImage) {
     var imageX = panels.top.loc.x - panels.top.size.x / 2;
     var imageY = panels.top.loc.y - panels.top.size.y / 2;
     d.doc.addImage(frontImage, 'JPEG', imageX, imageY, panels.top.size.x, panels.top.size.y);
-
+    
     d.rect(panels.top.loc, panels.top.size, 'S');
   }
+  
+  // Add title text to panels
+  d.doc.setFont('helvetica', 'bold');
+  d.text(_title, flaps.top_top.loc, 20, 'down');
+  d.text(_title, panels.left.loc, 23, 'right');
+  d.text(_title, panels.right.loc, 23, 'left');
+  d.text(_title, add(panels.top.loc, 0, panels.top.size.y * 0.25), 20, 'up');
+  d.text(_title, add(panels.bottom.loc, 0, panels.bottom.size.y * 0.25), 20, 'up');
+  
+  (function drawThumbCutout() {
+    var r = 1/3;
+    var x = panels.bottom.loc.x - r, y = panels.bottom.loc.y - size.main.y / 2;
+    var xOffset = 2 * r, yOffset = 4 / 3 * r
+    d.doc.lines([[0, yOffset, xOffset, yOffset, xOffset, 0]], x, y);
+  })();
+
+  // Add cut points
+  d.doc.setDrawColor(0);
+  var cutLength = 3/8;
+  // Top flap
+  var topMid = pt(flaps.top_top.loc.x, flaps.top_top.loc.y - flaps.top_top.size.y / 2);
+  var halfWidth = size.main.x / 2;
+  d.line(add(topMid, -halfWidth, 0), add(topMid, cutLength - halfWidth, 0));
+  d.line(add(topMid, halfWidth, 0), add(topMid, halfWidth - cutLength, 0));
+  // Back
+  topMid = pt(panels.top.loc.x, panels.top.loc.y - panels.top.size.y / 2);
+  halfWidth = size.main.x / 2;
+  d.line(add(topMid, -halfWidth, 0), add(topMid, -halfWidth, cutLength));
+  d.line(add(topMid, halfWidth, 0), add(topMid, halfWidth, cutLength));
+
+
 }
 
 function makeBox(
@@ -365,6 +454,7 @@ function makeBox(
     boxDepth,
     inside,
     fillColor,
+    title,
     images
 ) {
   images = images || {};
@@ -391,8 +481,7 @@ function makeBox(
     cardHeight += 1 / 16;
     boxDepth += 1 / 16;
   }
-  drawBox(drawer, cardWidth, cardHeight, boxDepth, fillColor, images.boxFront);
+  drawBox(drawer, cardWidth, cardHeight, boxDepth, fillColor, title, images.boxFront);
 
   return drawer;
 }
-
