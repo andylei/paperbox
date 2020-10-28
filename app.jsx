@@ -45,7 +45,7 @@ Configurator = React.createClass({
   getInitialState: function() {
     return {
       paper: 'a4',
-      unit: 'millimeters',
+      unit: 'millimetres',
       inside: 'none',
       height: 89,
       width: 64,
@@ -65,7 +65,7 @@ Configurator = React.createClass({
     props.forEach(function(prop) {
       var val = Number(this.state[prop]);
       if (val > 0) {
-        if (this.state.unit == 'millimeters') {
+        if (this.state.unit == 'millimetres') {
           measurements[prop] = val * 0.03937;
         } else {
           measurements[prop] = val;
@@ -176,7 +176,7 @@ Configurator = React.createClass({
               onChange={this.unitChange} value={this.state.unit}
 			  >
                 <option value="inches">Inches</option>
-                <option value="millimeters">Millimeters</option>
+                <option value="millimetres">Millimetres</option>
             </select>
           </div>
         </div>
