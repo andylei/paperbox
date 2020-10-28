@@ -160,7 +160,11 @@ Configurator = React.createClass({
               onChange={this.paperChange} value={this.state.paper}
 			  >
                 <option value="letter">Letter</option>
-                <option value="a4">A4</option>
+				<option value="a4">A4</option>
+                <option value="a0">A0</option>
+				<option value="a1">A1</option>
+				<option value="a2">A2</option>
+				<option value="a3">A3</option>
             </select>
           </div>
         </div>
