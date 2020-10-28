@@ -44,12 +44,12 @@ Window = React.createClass({
 Configurator = React.createClass({
   getInitialState: function() {
     return {
-      paper: 'letter',
-      unit: 'inches',
+      paper: 'a4',
+      unit: 'millimeters',
       inside: 'none',
-      height: 3.5,
-      width: 2.5,
-      depth: 1,
+      height: 89,
+      width: 64,
+      depth: 13,
       title: ""
     };
   },
