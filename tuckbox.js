@@ -458,7 +458,7 @@ function makeBox(
     images
 ) {
   images = images || {};
-  paper = paper === 'a4' ? 'a4' : 'letter';
+  //paper = paper === 'a4' ? 'a4' : 'letter';
 
   var drawer = new PDFDrawer(paper);
 
