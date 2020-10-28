@@ -413,6 +413,14 @@ function drawBox(_drawer, _width, _length, _height, _fill, _title, _frontImg) {
     d.doc.addImage(frontImage, 'JPEG', imageX, imageY, panels.top.size.x, panels.top.size.y);
     
     d.rect(panels.top.loc, panels.top.size, 'S');
+	
+	var imageX = panels.bottom.loc.x - panels.bottom.size.x / 2;
+    var imageY = panels.bottom.loc.y - panels.bottom.size.y / 2;
+    d.doc.addImage(frontImage, 'JPEG', imageX, imageY, panels.bottom.size.x, panels.bottom.size.y);
+    
+    d.rect(panels.bottom.loc, panels.bottom.size, 'S');
+	// to do: add top of panel image to box lid flap so it fills thumb hole
+  }
   }
   
   // Add title text to panels
