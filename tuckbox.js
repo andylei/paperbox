@@ -410,13 +410,12 @@ function drawBox(_drawer, _width, _length, _height, _fill, _title, _imgs) {
 	var imageX = pos.x - size.x / 2;
 	var imageY = pos.y - size.y / 2;
 	d.doc.addImage(img, 'JPEG', imageX, imageY, size.x, size.y, null, null, rot);
-	
-	//d.rect(pos, size, 'S');
   }
   
   if (frontImage) {
 	imagePanel(frontImage, panels.top.loc, panels.top.size, 0);
 	imagePanel(frontImage, panels.bottom.loc, panels.bottom.size, 0);
+	//TO DO - display bottom image in flap so visible behind thumb hole
   }
   
   if (sideImage) {
