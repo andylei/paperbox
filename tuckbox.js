@@ -406,26 +406,26 @@ function drawBox(_drawer, _width, _length, _height, _fill, _title, _frontImg) {
   
   _.values(panels).forEach(drawPanel);
   _.values(flaps).forEach(drawFlap);
+    
+  function imagePanel(img, pos, size) {
+	var imageX = pos.x - size.x / 2;
+	var imageY = pos.y - size.y / 2;
+	d.doc.addImage(img, 'JPEG', imageX, imageY, size.x, size.y);
+	
+	d.rect(pos, size, 'S');
+  }
   
   if (frontImage) {
-    var imageX = panels.top.loc.x - panels.top.size.x / 2;
-    var imageY = panels.top.loc.y - panels.top.size.y / 2;
-    d.doc.addImage(frontImage, 'JPEG', imageX, imageY, panels.top.size.x, panels.top.size.y);
-    
-    d.rect(panels.top.loc, panels.top.size, 'S');
-	
-	var imageX = panels.bottom.loc.x - panels.bottom.size.x / 2;
-    var imageY = panels.bottom.loc.y - panels.bottom.size.y / 2;
-    d.doc.addImage(frontImage, 'JPEG', imageX, imageY, panels.bottom.size.x, panels.bottom.size.y);
-    
-    d.rect(panels.bottom.loc, panels.bottom.size, 'S');
-	// to do: add top of panel image to box lid flap so it fills thumb hole
+	imagePanel(frontImage, panels.top.loc, panels.top.size);
+	imagePanel(frontImage, panels.bottom.loc, panels.bottom.size);
+	//imagePanel(frontImage, flaps.top_top_top.loc, flaps.top_top_top.size);// todo: amend size/clipping & fix corners of flap
   }
   }
   
   // Add title text to panels
   d.doc.setFont('helvetica', 'bold');
   d.text(_title, flaps.top_top.loc, 20, 'down');
+  d.text(_title, flaps.top_bot.loc, 20, 'up');
   d.text(_title, panels.left.loc, 23, 'right');
   d.text(_title, panels.right.loc, 23, 'left');
   d.text(_title, add(panels.top.loc, 0, panels.top.size.y * 0.25), 20, 'up');
