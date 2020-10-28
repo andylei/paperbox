@@ -4,7 +4,9 @@ Window = React.createClass({
   },
   generatePdf: function(params) {
     images = {
-      boxFront: params.imageBoxFront
+      boxFront: params.imageBoxFront,
+	  boxSide: params.imageBoxSide,
+	  boxTop: params.imageBoxTop
     };
     return makeBox(params.paper,
       params.height, params.width, params.depth,
@@ -59,7 +61,9 @@ Configurator = React.createClass({
       inside: this.state.inside,
       paper: this.state.paper,
       title: this.state.title,
-      imageBoxFront: this.state.imageBoxFront
+      imageBoxFront: this.state.imageBoxFront,
+	  imageBoxSide: this.state.imageBoxSide,
+	  imageBoxTop: this.state.imageBoxTop
     };
     var hasInvalid = false;
     props.forEach(function(prop) {
@@ -147,6 +151,34 @@ Configurator = React.createClass({
       reader.readAsDataURL(file);
     } else {
       this.changeState('imageBoxFront', null);
+    }
+  },
+  imageBoxSideChange: function(e) {
+    if (e.target.files) {
+      var file = e.target.files[0];
+      var reader = new FileReader();
+      var _this = this;
+      reader.onload = function(e) {
+        var datauri = e.target.result;
+        _this.changeState('imageBoxSide', datauri);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      this.changeState('imageBoxSide', null);
+    }
+  },
+  imageBoxTopChange: function(e) {
+    if (e.target.files) {
+      var file = e.target.files[0];
+      var reader = new FileReader();
+      var _this = this;
+      reader.onload = function(e) {
+        var datauri = e.target.result;
+        _this.changeState('imageBoxTop', datauri);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      this.changeState('imageBoxTop', null);
     }
   },
   render: function() {
@@ -245,6 +277,24 @@ Configurator = React.createClass({
             <input
               className="form-control" type="file" ref="imageBoxFront"
               onChange={this.imageBoxFrontChange}
+            />
+          </div>
+        </div>
+		<div className="form-group">
+          <label className="control-label col-xs-4">Box Side</label>
+          <div className="col-xs-8">
+            <input
+              className="form-control" type="file" ref="imageBoxSide"
+              onChange={this.imageBoxSideChange}
+            />
+          </div>
+        </div>
+		<div className="form-group">
+          <label className="control-label col-xs-4">Box Top</label>
+          <div className="col-xs-8">
+            <input
+              className="form-control" type="file" ref="imageBoxTop"
+              onChange={this.imageBoxTopChange}
             />
           </div>
         </div>

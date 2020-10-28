@@ -275,7 +275,7 @@ function drawDrawer(_drawer, _width, _length, _height, _gap, _fill) {
   d.trap(d.p(-x_offset, -y_offset), height, flap_length, 1/16, 'up', fill);
 }
 
-function drawBox(_drawer, _width, _length, _height, _fill, _title, _frontImg) {
+function drawBox(_drawer, _width, _length, _height, _fill, _title, _imgs) {
   var d = _drawer;
   var depths = {
     side_flap: _height * 0.9,
@@ -297,7 +297,9 @@ function drawBox(_drawer, _width, _length, _height, _fill, _title, _frontImg) {
     d.doc.setFillColor.apply(d, hexToRgb(_fill));
     fill = 'DF';
   }
-  var frontImage = _frontImg;
+  var frontImage = _imgs.boxFront;
+  var sideImage = _imgs.boxSide;
+  var topImage = _imgs.boxTop;
   var totalLength = size.main.x * 2 + size.side_panel.x * 2 + size.side_flap.x;
   var currCenterX = size.main.x * 1.5 + size.side_panel.x;
   var totalHeight = size.main.y + size.bt_flap.y * 2 + size.top_top_flap.y;
@@ -404,24 +406,31 @@ function drawBox(_drawer, _width, _length, _height, _fill, _title, _frontImg) {
     }
   }
   
-  _.values(panels).forEach(drawPanel);
-  _.values(flaps).forEach(drawFlap);
-    
-  function imagePanel(img, pos, size) {
+  function imagePanel(img, pos, size, rot) {
 	var imageX = pos.x - size.x / 2;
 	var imageY = pos.y - size.y / 2;
-	d.doc.addImage(img, 'JPEG', imageX, imageY, size.x, size.y);
+	d.doc.addImage(img, 'JPEG', imageX, imageY, size.x, size.y, null, null, rot);
 	
-	d.rect(pos, size, 'S');
+	//d.rect(pos, size, 'S');
   }
   
   if (frontImage) {
-	imagePanel(frontImage, panels.top.loc, panels.top.size);
-	imagePanel(frontImage, panels.bottom.loc, panels.bottom.size);
-	//imagePanel(frontImage, flaps.top_top_top.loc, flaps.top_top_top.size);// todo: amend size/clipping & fix corners of flap
-  }
+	imagePanel(frontImage, panels.top.loc, panels.top.size, 0);
+	imagePanel(frontImage, panels.bottom.loc, panels.bottom.size, 0);
   }
   
+  if (sideImage) {
+	imagePanel(sideImage, panels.left.loc, panels.left.size, 0);
+	imagePanel(sideImage, panels.right.loc, panels.right.size, 0);
+  }
+  
+  if (topImage) {	  
+	imagePanel(topImage, flaps.top_top.loc, flaps.top_top.size, 0);
+	imagePanel(topImage, flaps.top_bot.loc, flaps.top_bot.size, 0);
+  }
+	_.values(panels).forEach(drawPanel);
+	_.values(flaps).forEach(drawFlap);
+
   // Add title text to panels
   d.doc.setFont('helvetica', 'bold');
   d.text(_title, flaps.top_top.loc, 20, 'down');
@@ -489,7 +498,7 @@ function makeBox(
     cardHeight += 1 / 16;
     boxDepth += 1 / 16;
   }
-  drawBox(drawer, cardWidth, cardHeight, boxDepth, fillColor, title, images.boxFront);
+  drawBox(drawer, cardWidth, cardHeight, boxDepth, fillColor, title, images);
 
   return drawer;
 }
