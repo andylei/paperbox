@@ -4,7 +4,9 @@ Window = React.createClass({
   },
   generatePdf: function(params) {
     images = {
-      boxFront: params.imageBoxFront
+      boxFront: params.imageBoxFront,
+	  boxSide: params.imageBoxSide,
+	  boxTop: params.imageBoxTop
     };
     return makeBox(params.paper,
       params.height, params.width, params.depth,
@@ -44,12 +46,12 @@ Window = React.createClass({
 Configurator = React.createClass({
   getInitialState: function() {
     return {
-      paper: 'letter',
-      unit: 'inches',
+      paper: 'a4',
+      unit: 'millimetres',
       inside: 'none',
-      height: 3.5,
-      width: 2.5,
-      depth: 1,
+      height: 89,
+      width: 64,
+      depth: 13,
       title: ""
     };
   },
@@ -59,13 +61,15 @@ Configurator = React.createClass({
       inside: this.state.inside,
       paper: this.state.paper,
       title: this.state.title,
-      imageBoxFront: this.state.imageBoxFront
+      imageBoxFront: this.state.imageBoxFront,
+	  imageBoxSide: this.state.imageBoxSide,
+	  imageBoxTop: this.state.imageBoxTop
     };
     var hasInvalid = false;
     props.forEach(function(prop) {
       var val = Number(this.state[prop]);
       if (val > 0) {
-        if (this.state.unit == 'millimeters') {
+        if (this.state.unit == 'millimetres') {
           measurements[prop] = val * 0.03937;
         } else {
           measurements[prop] = val;
@@ -149,6 +153,34 @@ Configurator = React.createClass({
       this.changeState('imageBoxFront', null);
     }
   },
+  imageBoxSideChange: function(e) {
+    if (e.target.files) {
+      var file = e.target.files[0];
+      var reader = new FileReader();
+      var _this = this;
+      reader.onload = function(e) {
+        var datauri = e.target.result;
+        _this.changeState('imageBoxSide', datauri);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      this.changeState('imageBoxSide', null);
+    }
+  },
+  imageBoxTopChange: function(e) {
+    if (e.target.files) {
+      var file = e.target.files[0];
+      var reader = new FileReader();
+      var _this = this;
+      reader.onload = function(e) {
+        var datauri = e.target.result;
+        _this.changeState('imageBoxTop', datauri);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      this.changeState('imageBoxTop', null);
+    }
+  },
   render: function() {
     return (
       <form className="configurator form-horizontal" onSubmit={this.handleSubmit}>
@@ -160,7 +192,11 @@ Configurator = React.createClass({
               onChange={this.paperChange} value={this.state.paper}
 			  >
                 <option value="letter">Letter</option>
-                <option value="a4">A4</option>
+				<option value="a4">A4</option>
+                <option value="a0">A0</option>
+				<option value="a1">A1</option>
+				<option value="a2">A2</option>
+				<option value="a3">A3</option>
             </select>
           </div>
         </div>
@@ -172,7 +208,7 @@ Configurator = React.createClass({
               onChange={this.unitChange} value={this.state.unit}
 			  >
                 <option value="inches">Inches</option>
-                <option value="millimeters">Millimeters</option>
+                <option value="millimetres">Millimetres</option>
             </select>
           </div>
         </div>
@@ -241,6 +277,24 @@ Configurator = React.createClass({
             <input
               className="form-control" type="file" ref="imageBoxFront"
               onChange={this.imageBoxFrontChange}
+            />
+          </div>
+        </div>
+		<div className="form-group">
+          <label className="control-label col-xs-4">Box Side</label>
+          <div className="col-xs-8">
+            <input
+              className="form-control" type="file" ref="imageBoxSide"
+              onChange={this.imageBoxSideChange}
+            />
+          </div>
+        </div>
+		<div className="form-group">
+          <label className="control-label col-xs-4">Box Top</label>
+          <div className="col-xs-8">
+            <input
+              className="form-control" type="file" ref="imageBoxTop"
+              onChange={this.imageBoxTopChange}
             />
           </div>
         </div>
