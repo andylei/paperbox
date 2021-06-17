@@ -5,8 +5,9 @@ Window = React.createClass({
   generatePdf: function(params) {
     images = {
       boxFront: params.imageBoxFront,
-	  boxSide: params.imageBoxSide,
-	  boxTop: params.imageBoxTop
+      boxBack: params.imageBoxBack,
+      boxSide: params.imageBoxSide,
+      boxTop: params.imageBoxTop
     };
     return makeBox(params.paper,
       params.height, params.width, params.depth,
@@ -62,8 +63,9 @@ Configurator = React.createClass({
       paper: this.state.paper,
       title: this.state.title,
       imageBoxFront: this.state.imageBoxFront,
-	  imageBoxSide: this.state.imageBoxSide,
-	  imageBoxTop: this.state.imageBoxTop
+      imageBoxBack: this.state.imageBoxBack,
+      imageBoxSide: this.state.imageBoxSide,
+      imageBoxTop: this.state.imageBoxTop
     };
     var hasInvalid = false;
     props.forEach(function(prop) {
@@ -138,6 +140,20 @@ Configurator = React.createClass({
   },
   titleChange: function(e) {
     this.changeState('title', e.target.value)
+  },
+  imageBoxBackChange: function(e) {
+    if (e.target.files) {
+      var file = e.target.files[0];
+      var reader = new FileReader();
+      var _this = this;
+      reader.onload = function(e) {
+        var datauri = e.target.result;
+        _this.changeState('imageBoxBack', datauri);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      this.changeState('imageBoxBack', null);
+    }
   },
   imageBoxFrontChange: function(e) {
     if (e.target.files) {
@@ -280,7 +296,16 @@ Configurator = React.createClass({
             />
           </div>
         </div>
-		<div className="form-group">
+        <div className="form-group">
+          <label className="control-label col-xs-4">Box Back</label>
+          <div className="col-xs-8">
+            <input
+              className="form-control" type="file" ref="imageBoxBack"
+              onChange={this.imageBoxBackChange}
+            />
+          </div>
+        </div>
+        <div className="form-group">
           <label className="control-label col-xs-4">Box Side</label>
           <div className="col-xs-8">
             <input
@@ -289,7 +314,7 @@ Configurator = React.createClass({
             />
           </div>
         </div>
-		<div className="form-group">
+        <div className="form-group">
           <label className="control-label col-xs-4">Box Top</label>
           <div className="col-xs-8">
             <input

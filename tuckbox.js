@@ -298,6 +298,7 @@ function drawBox(_drawer, _width, _length, _height, _fill, _title, _imgs) {
     fill = 'DF';
   }
   var frontImage = _imgs.boxFront;
+  var backImage = _imgs.boxBack;
   var sideImage = _imgs.boxSide;
   var topImage = _imgs.boxTop;
   var totalLength = size.main.x * 2 + size.side_panel.x * 2 + size.side_flap.x;
@@ -414,7 +415,9 @@ function drawBox(_drawer, _width, _length, _height, _fill, _title, _imgs) {
   
   if (frontImage) {
 	imagePanel(frontImage, panels.top.loc, panels.top.size, 0);
-	imagePanel(frontImage, panels.bottom.loc, panels.bottom.size, 0);
+  }
+  if (backImage) {
+	imagePanel(backImage, panels.bottom.loc, panels.bottom.size, 0);
 	//TO DO - display bottom image in flap so visible behind thumb hole
   }
   
